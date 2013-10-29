@@ -22,6 +22,8 @@ class AcmeRepoScanner {
 
             $this->processDirtyBranch();
         }
+
+        $this->processMailQueue();
     }
 
 
@@ -122,52 +124,89 @@ class AcmeRepoScanner {
         }
     }
 
-    function getScannable() {
-      global $repositoryModel;
+    function processMailQueue() {
 
-      return $repositoryModel->find(); 
+        foreach($this->mailQueue as $email=>$jobs) {
+
+            $msg = null;
+
+            if(count($jobs) > 1) {
+
+                foreach($jobs as $job) {
+
+                    $msg .= $job['subject'] . "\r\n".$job['message']."\r\n-------------------------------------------------------------------\r\n";
+                } 
+
+                //var_dump($email,$this->coName . " Repo Scanner - Important Notices",$msg);
+                mail($email,$this->coName . " Repo Scanner - Important Notices",$msg);
+
+            } else  { 
+
+                //var_dump($email,$jobs[0]['subject'],$jobs[0]['message']); 
+                mail($email,$jobs[0]['subject'],$jobs[0]['message']);
+            }
+        }
+
     }
 
-  function notifySynchOverdue($committ) {
 
-      $repo_name = $this->scannable['name'];
+    function getScannable() {
+        global $repositoryModel;
 
-      $content = $committ->name . " updated $repo_name on " . $committ->date . " and it has not been updated in w pages\r\n If this is not the case then update the repository last synched date in logs\r\n Visit the repo settings here:" . $this->repoManagerViewUrl .  $this->scannable['id'];
+        return $repositoryModel->find(); 
+    }
 
-      foreach($this->notificationEmails as $email) {
+    function notifySynchOverdue($committ) {
 
-          mail($email,$this->coName . " Repo Scanner Synch Required",$content);
-      }
-  }
+        $repo_name = $this->scannable['name'];
 
-  function notifyDirtyBranch($dirtyChanges) {
+        $content = $committ->name . " updated $repo_name on " . $committ->date . " and it has not been updated in w pages\r\n" . 
+                   "If this is not the case then update the repository last synched date in logs\r\n" . 
+                   "Visit the repo settings here: " . $this->repoManagerViewUrl .  $this->scannable['id'];
 
-      $repo_name = $this->scannable['name'];
+        foreach($this->notificationEmails as $email) {
 
-      $content = "There are some dirty changes tha have not yet been committed on $repo_name \r\n" .
-                 "the status dump is below \r\n Visit the repo settings here: " . $this->repoManagerViewUrl . $this->scannable['id'] . 
-                 var_export(json_decode($dirtyChanges),true);
+            $this->mailQueue[$email][] = array(
+              'subject'=>$this->coName . " Repo Scanner - Backup Required",
+              'message'=>$content
+            );
+        }
+    }
 
-      foreach($this->notificationEmails as $email) {
-          mail($email,$this->coName . " Repo Scanner - Dirty Repo (Changes Made)",$content);
-      }
-  }
+    function notifyDirtyBranch($dirtyChanges) {
 
-  function handleError($url,$err) {
+        $repo_name = $this->scannable['name'];
 
-      foreach($this->notificationEmails as $email) {
+        $content = "There are some dirty changes tha have not yet been committed on $repo_name \r\n" .
+                   "the status dump is below \r\n Visit the repo settings here: " . $this->repoManagerViewUrl . $this->scannable['id'] . 
+                   var_export(json_decode($dirtyChanges),true);
 
-          mail($email,$this->coName . " Repo Scanner Error Report - " . $url,"The following error information has been generated for $url \r\n" . $this->errToString($err));
-      }
-  }
+        foreach($this->notificationEmails as $email) {
+            $this->mailQueue[$email][] = array(
+              'subject'=>$this->coName . " Repo Scanner - Dirty Repo (Changes Made)",
+              'message'=>$content
+            );
+        }
+    }
 
-  function errToString($err) {
+    function handleError($url,$err) {
 
-     foreach($err as $k=>$v) {
+        foreach($this->notificationEmails as $email) {
 
-       $errMsg .= "\t$k: $v\r\n";
-     }
+            $this->mailQueue[$email][] = array(
+              'subject'=>$this->coName . " Repo Scanner - Error Thrown",
+              'message'=>"The following error information has been generated for $url \r\n" . $this->errToString($err)
+            );
+        }
+    }
 
-     return $errMsg;
-  }
+    function errToString($err) {
+
+        foreach($err as $k=>$v) {
+
+            $errMsg .= "\t$k: $v\r\n";
+        }
+
+        return $errMsg;
+    }
 }
