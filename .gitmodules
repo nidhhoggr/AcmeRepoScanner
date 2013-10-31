@@ -1,0 +1,6 @@
+[submodule "SupraModel"]
+	path = SupraModel
+	url = git@github.com:zmijevik/SupraModel.git
+[submodule "vendor/PHPMailer"]
+	path = vendor/PHPMailer
+	url = https://github.com/PHPMailer/PHPMailer.git
