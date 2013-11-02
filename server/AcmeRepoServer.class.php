@@ -11,6 +11,8 @@ class AcmeRepoServer extends BaseAcmeRepo {
         $this->debug = $settingsArr['debugMode'];
         $this->repo_service_url = $settingsArr['repo_service_url'];
         $this->tier = "Server";
+        if(!empty($settingsArr['git_bin'])) 
+	    $this->git_bin = $settingsArr['git_bin'];
     }
 
     function run() {
@@ -29,7 +31,7 @@ class AcmeRepoServer extends BaseAcmeRepo {
         $this->invokeClientProcess();
     }
 
-    function getResponseFromUrl($url, $post=false) {
+    function getResponseFromUrl($url, $post=false, $debugMsg=false) {
 
         $handle = curl_init($url);
 
@@ -40,13 +42,13 @@ class AcmeRepoServer extends BaseAcmeRepo {
             $fields_string = null;
             foreach($post as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
             rtrim($fields_string, '&');
-            curl_setopt($handle,CURLOPT_POST, count($post));
+            curl_setopt($handle,CURLOPT_POST, count($post));		
             curl_setopt($handle,CURLOPT_POSTFIELDS, $fields_string);
         }
         /* Get the HTML or whatever is linked in $url. */
         $response = curl_exec($handle);
 
-        if($this->debug) var_dump($response);
+        if($this->debug) var_dump(($debugMsg) ? $debugMsg . $response : $response);
 
         $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
@@ -65,12 +67,13 @@ class AcmeRepoServer extends BaseAcmeRepo {
     }
 
     function sendPullSuccess() {
-
+  
         $request = array(
             'action'=>'pull-success',
             'data'=>json_encode($this->pullSuccess)
         );
-        $this->getResponseFromUrl($this->repo_service_url,$request);
+		
+        $this->getResponseFromUrl($this->repo_service_url,$request,"PULL SUCCESS JSON");
     }
 
     private function invokeClientProcess() {
@@ -78,13 +81,16 @@ class AcmeRepoServer extends BaseAcmeRepo {
         $request = array(
             'action'=>'run',
         );
-        $this->getResponseFromUrl($this->repo_service_url,$request);
+        $this->getResponseFromUrl($this->repo_service_url,$request,"RESPONSE FROM CLIENT INVOCATION");
     }
 
     function resetPullAndStatus() {
 
         $branch_name = end(explode('/',$this->repo->url));
         $repo_location = $this->repo->local_backup_location;
+
+        if($this->git_bin)
+            Git::set_bin($this->git_bin); 
 
         $repo = Git::open($repo_location);
 

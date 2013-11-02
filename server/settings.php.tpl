@@ -23,6 +23,7 @@ $settingsArr = array(
         'username'=>'joseph+test.com',
         'password'=>'password',
         'security'=>'TLS'
-    )
+    ),
+    'git_bin'=>'C:\Git\bin\git.exe'
 );
 
