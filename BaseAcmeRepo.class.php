@@ -43,7 +43,9 @@ class BaseAcmeRepo {
 
         $this->mailer->Subject = $subject;
         $this->mailer->Body = $msg;
-        $this->mailer->send(); 
+        $response = $this->mailer->send(); 
+
+        if($this->debug) var_dump("Mail Response " . $response); 
     }
 
     protected function handleError(Exception $e, $err) {

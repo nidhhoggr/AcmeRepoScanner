@@ -96,10 +96,10 @@ class AcmeRepoClient extends BaseAcmeRepo {
      * Retrieves a JSON string from the server and updates repo lastSynched date
      */
     public function processServerPullSuccess($data) {
-      
+     
         $repositoryModel = $this->dbm['repositoryModel'];
  
-        $data = json_decode($data); 
+        $data = json_decode(stripslashes($data)); 
  
         foreach($data as $id=>$success) {
 
