@@ -46,6 +46,10 @@ class BaseAcmeRepo {
         $response = $this->mailer->send(); 
 
         if($this->debug) var_dump("Mail Response " . $response); 
+
+        if(!$response) Throw new Exception("Error Sending Mail: " . $this->mailer->ErrorInfo);
+
+        return $response;
     }
 
     protected function handleError(Exception $e, $err) {

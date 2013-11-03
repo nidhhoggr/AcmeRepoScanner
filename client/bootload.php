@@ -16,14 +16,15 @@ $ARC->setDBM(compact('repositoryModel'));
 //configure mail server
 $mailer = new PHPMailer;
 
-$mailer->isSMTP();           
-
 $ss = $settingsArr['smtp_settings'];
 
-$mailer->Host = $ss['host']; 
-$mailer->SMTPAuth = $ss['auth'];
-$mailer->Username = $ss['username'];
-$mailer->Password = $ss['password'];                         
-$mailer->SMTPSecure = $ss['security'];
+if(count($ss)) { 
 
+    $mailer->isSMTP();           
+    $mailer->Host = $ss['host']; 
+    $mailer->SMTPAuth = $ss['auth'];
+    $mailer->Username = $ss['username'];
+    $mailer->Password = $ss['password'];                         
+    $mailer->SMTPSecure = $ss['security'];
+}
 $ARC->setMailer($mailer); 

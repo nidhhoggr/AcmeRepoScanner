@@ -1,2 +1,5 @@
 server/settings.php
 client/settings.php
+*swp
+*swo
+error_log
