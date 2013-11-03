@@ -21,18 +21,16 @@ class BaseAcmeRepoTest extends BaseAcmeRepo {
             //$mailer->isSMTP();
             $ss = $settingsArr['smtp_settings'];
             $this->setMailer($mailer);
+            $this->debug = true;
     } 
 
     public function test_runMailQueueTest() {
-        global $bart;
 
-        $bart->debug = true;
-
-        $bart->notificationEmails = array(
+        $this->notificationEmails = array(
             'joseph@supraliminalsolutions.com'
         );
 
-        $bart->processMailQueue();
+        $this->processMailQueue();
     }
  
 } 
