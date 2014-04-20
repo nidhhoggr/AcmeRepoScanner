@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 class AcmeRepoServer extends BaseAcmeRepo {
 
     private $pullSuccess = array();
@@ -99,10 +99,10 @@ class AcmeRepoServer extends BaseAcmeRepo {
 
         try {
 
-		    //reset commits on working copy
+            //reset commits on working copy
             $resetRsp = $repo->resetHard();
 
-			//clean untracked files
+            //clean untracked files
             $cleanRsp = $repo->clean(true, true);
  
             //pull latest commits from branch

@@ -153,7 +153,7 @@ class AcmeRepoClient extends BaseAcmeRepo {
 
         $content = "There are some dirty changes tha have not yet been committed on $repo_name \r\n" .
                    "the status dump is below \r\n Visit the repo settings here: " . 
-                   $this->repoManagerViewUrl . $this->scannable['id'] . var_export(json_decode($dirtyChanges),true);
+                   $this->repoManagerViewUrl . $this->scannable['id'] . ' ' . var_export(json_decode($dirtyChanges),true);
 
         $this->mailQueue[] = array(
           'subject'=>$this->coName . " Repo Client - Dirty Repo",
