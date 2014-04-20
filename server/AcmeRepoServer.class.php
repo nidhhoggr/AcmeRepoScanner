@@ -10,7 +10,7 @@ class AcmeRepoServer extends BaseAcmeRepo {
         $this->coName = $settingsArr['coName'];
         $this->debug = $settingsArr['debugMode'];
         $this->repo_service_url = $settingsArr['repo_service_url'];
-	$this->userAgent = $settingsArr['userAgent'];
+        $this->userAgent = $settingsArr['userAgent'];
         $this->tier = "Server";
         if(!empty($settingsArr['git_bin'])) 
 	    $this->git_bin = $settingsArr['git_bin'];
@@ -19,7 +19,6 @@ class AcmeRepoServer extends BaseAcmeRepo {
     function run() {
 
         foreach($this->getRepositories() as $repo) {
-
             $this->repo = $repo;
             $this->resetPullAndStatus();
         }
@@ -96,25 +95,35 @@ class AcmeRepoServer extends BaseAcmeRepo {
 
         $repo = Git::open($repo_location);
 
+        /** Branch cleaning and reset magic begins here **/
+
         try {
 
-          $resetRsp = $repo->resetHard();
+		    //reset commits on working copy
+            $resetRsp = $repo->resetHard();
 
-          $pullRsp = $repo->pull('origin',$branch_name);
-
-          $fetchRsp = $repo->fetch();
+			//clean untracked files
+            $cleanRsp = $repo->clean(true, true);
+ 
+            //pull latest commits from branch
+            $pullRsp = $repo->pull('origin',$branch_name);
+ 
+            //fetch the branch just in case
+            $fetchRsp = $repo->fetch();
 
         } catch(Exception $e) {
 
             if($this->debug) var_dump($e->getMessage());
-	    $this->handleError($e, $e->getMessage());
+            $this->handleError($e, $e->getMessage());
             $this->pullSuccess[$this->repo->id] = false;
             return;
-	} 
+        } 
+
+        /** Branch cleaning and reset magic ends here **/
 
         $statusRsp = $repo->status();
 
-        $responses = (compact('resetRsp','pullRsp','fetchRsp','statusRsp'));
+        $responses = (compact('resetRsp','pullRsp','cleanRsp','fetchRsp','statusRsp'));
 
         if($this->debug) var_dump($responses);
 
