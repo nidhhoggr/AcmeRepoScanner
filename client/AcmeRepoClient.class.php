@@ -7,6 +7,7 @@ class AcmeRepoClient extends BaseAcmeRepo {
         $this->repoManagerViewUrl = $settingsArr['repoManagerViewUrl'];
         $this->coName = $settingsArr['coName'];
         $this->debug = $settingsArr['debugMode'];
+	$this->userAgent = $settingsArr['userAgent'];
         $this->tier = "Client"; 
     }
 
@@ -31,6 +32,8 @@ class AcmeRepoClient extends BaseAcmeRepo {
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($handle, CURLOPT_USERPWD, $this->curloptUserPwd);
+        curl_setopt($handle ,CURLOPT_USERAGENT, $this->userAgent);
+
         /* Get the HTML or whatever is linked in $url. */
         $response = curl_exec($handle);
 

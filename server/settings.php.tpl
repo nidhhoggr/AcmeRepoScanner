@@ -13,6 +13,7 @@ $settingsArr = array(
     ),
     'curloptUserPwd'=>"username:password",
     'repoManagerViewUrl'=>"http://test.com/repos/view/",
+    'userAgent' => 'repousername',
     'coName'=>'Supra',
     'database'=>compact('dbuser','dbpassword','dbname','dbhost','driver'),
     'debugMode'=>true,

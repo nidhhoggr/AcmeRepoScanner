@@ -10,6 +10,7 @@ class AcmeRepoServer extends BaseAcmeRepo {
         $this->coName = $settingsArr['coName'];
         $this->debug = $settingsArr['debugMode'];
         $this->repo_service_url = $settingsArr['repo_service_url'];
+	$this->userAgent = $settingsArr['userAgent'];
         $this->tier = "Server";
         if(!empty($settingsArr['git_bin'])) 
 	    $this->git_bin = $settingsArr['git_bin'];
@@ -36,7 +37,8 @@ class AcmeRepoServer extends BaseAcmeRepo {
         $handle = curl_init($url);
 
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($handle, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($handle ,CURLOPT_USERAGENT, $this->userAgent);
 
         if($post) {
             $fields_string = null;
@@ -94,11 +96,21 @@ class AcmeRepoServer extends BaseAcmeRepo {
 
         $repo = Git::open($repo_location);
 
-        $resetRsp = $repo->resetHard();
+        try {
 
-        $pullRsp = $repo->pull('origin',$branch_name);
+          $resetRsp = $repo->resetHard();
 
-        $fetchRsp = $repo->fetch();
+          $pullRsp = $repo->pull('origin',$branch_name);
+
+          $fetchRsp = $repo->fetch();
+
+        } catch(Exception $e) {
+
+            if($this->debug) var_dump($e->getMessage());
+	    $this->handleError($e, $e->getMessage());
+            $this->pullSuccess[$this->repo->id] = false;
+            return;
+	} 
 
         $statusRsp = $repo->status();
 

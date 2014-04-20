@@ -62,6 +62,8 @@ class BaseAcmeRepo {
 
     protected function errToString($err) {
 
+        if(!is_array($err)) return $err;
+
         foreach($err as $k=>$v) {
 
             $errMsg .= "\t$k: $v\r\n";
