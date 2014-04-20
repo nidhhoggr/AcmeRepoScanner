@@ -27,3 +27,6 @@ CREATE TABLE IF NOT EXISTS `repositories` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
 
 ```
+
+**Sequence Diagram**
+![Sequence Diagram](https://raw.github.com/zmijevik/AcmeRepoScanner/master/sd.png)
